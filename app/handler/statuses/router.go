@@ -21,7 +21,8 @@ func NewRouter(ar repository.Account, sr repository.Status) http.Handler {
 	r.Group(func(r chi.Router) {
 		r.Use(auth.Middleware(ar)) // 認証ミドルウェアを適用
 		h := &handler{sr}
-		r.Post("/", h.Create) // POST /: 認証が必要
+		r.Post("/", h.Create)       // POST /: 認証が必要
+		r.Delete("/{id}", h.Delete) // DELETE /{id}: 認証が必要
 	})
 
 	// 認証が不要なルートグループ
