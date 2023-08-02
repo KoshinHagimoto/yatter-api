@@ -8,7 +8,7 @@ import (
 )
 
 type AddRequest struct {
-	Content string `json:"content"`
+	Content string `json:"status"`
 }
 
 func (h *handler) Create(w http.ResponseWriter, r *http.Request) {
