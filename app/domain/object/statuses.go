@@ -9,7 +9,7 @@ type Status struct {
 
 	Content string `json:"content,omitempty"`
 
-	Url string `json:"url,omitempty"`
+	Url *string `json:"url,omitempty"`
 
 	CreateAt time.Time `json:"create_at,omitempty" db:"create_at"`
 }
