@@ -17,16 +17,16 @@ func NewRouter(ar repository.Account) http.Handler {
 	r := chi.NewRouter()
 
 	// A good base middleware stack
-	r.Use(middleware.RequestID)
-	r.Use(middleware.RealIP)
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-	r.Use(newCORS().Handler)
+	r.Use(middleware.RequestID) //各リクエストにユニークなIDを付与する
+	r.Use(middleware.RealIP)    //リクエスト元のIPアドレスを取得する
+	r.Use(middleware.Logger)    //リクエストの開始と終了をログに出力する
+	r.Use(middleware.Recoverer) //パニックをキャッチして500エラーを返す
+	r.Use(newCORS().Handler)    //CORSを許可する
 
 	// Set a timeout value on the request context (ctx), that will signal
 	// through ctx.Done() that the request has timed out and further
 	// processing should be stopped.
-	r.Use(middleware.Timeout(60 * time.Second))
+	r.Use(middleware.Timeout(60 * time.Second)) //リクエストのタイムアウトを設定する
 
 	r.Mount("/v1/accounts", accounts.NewRouter(ar))
 	r.Mount("/v1/health", health.NewRouter())
