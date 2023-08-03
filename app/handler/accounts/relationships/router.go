@@ -20,7 +20,7 @@ func NewRouter(ar repository.Account, rr repository.Relationship) http.Handler {
 		r.Use(auth.Middleware(ar))
 		h := &handler{ar, rr}
 		r.Post("/{username}/follow", h.FollowAccount)
-		//r.Post("/{username}/unfollow", h.UnFollowAccount)
+		r.Post("/{username}/unfollow", h.UnfollowAccount)
 	})
 
 	return r

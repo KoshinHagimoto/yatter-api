@@ -23,7 +23,6 @@ func NewRouter(ar repository.Account, rr repository.Relationship) http.Handler {
 		r.Use(auth.Middleware(ar))
 		h := &handler{ar}
 		r.Post("/update_credentials", h.Update) // POST /update_credentials: 認証が必要
-		//r.Post("/{username}/follow", h.FollowAccount)
 	})
 
 	r.Group(func(r chi.Router) {
