@@ -29,5 +29,6 @@ func serve(ctx context.Context) error {
 		dao.NewAccount(db),
 		dao.NewStatus(db),
 		dao.NewTimeline(db),
+		dao.NewRelationship(db),
 	))
 }

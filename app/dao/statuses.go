@@ -17,6 +17,8 @@ type (
 	}
 )
 
+// Repository for statuses　インターフェース満たすように生成
+// daoでもrepositoryで定義されたメソッドを実装しなければならない
 func NewStatus(db *sqlx.DB) repository.Status {
 	return &status{db: db}
 }
@@ -26,6 +28,15 @@ func (s *status) SaveStatus(ctx context.Context, status *object.Status) error {
 		status.AccountID, status.Content)
 	if err != nil {
 		return fmt.Errorf("failed to insert status into db: %w", err)
+	}
+
+	return nil
+}
+
+func (s *status) DeleteStatus(ctx context.Context, statusID int64) error {
+	_, err := s.db.ExecContext(ctx, "delete from status where id = ?", statusID)
+	if err != nil {
+		return fmt.Errorf("failed to delete status from db: %w", err)
 	}
 
 	return nil
