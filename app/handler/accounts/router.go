@@ -31,7 +31,9 @@ func NewRouter(ar repository.Account, rr repository.Relationship) http.Handler {
 		r.Get("/{username}", h.FindAccount)
 	})
 
-	r.Mount("/", relationships.NewRouter(ar, rr))
+	r.Route("/", func(r chi.Router) {
+		r.Mount("/", relationships.NewRouter(ar, rr))
+	})
 
 	return r
 }

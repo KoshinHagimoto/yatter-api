@@ -19,6 +19,7 @@ func NewRouter(ar repository.Account, rr repository.Relationship) http.Handler {
 	r.Group(func(r chi.Router) {
 		r.Use(auth.Middleware(ar))
 		h := &handler{ar, rr}
+		r.Get("/relationships", h.GetRelationships)
 		r.Post("/{username}/follow", h.FollowAccount)
 		r.Post("/{username}/unfollow", h.UnfollowAccount)
 	})
