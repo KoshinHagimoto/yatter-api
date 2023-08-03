@@ -23,5 +23,11 @@ func NewRouter(ar repository.Account, rr repository.Relationship) http.Handler {
 		r.Post("/{username}/unfollow", h.UnfollowAccount)
 	})
 
+	r.Group(func(r chi.Router) {
+		h := &handler{ar, rr}
+		r.Get("/{username}/following", h.GetFollowing)
+		r.Get("/{username}/followers", h.GetFollowers)
+	})
+
 	return r
 }

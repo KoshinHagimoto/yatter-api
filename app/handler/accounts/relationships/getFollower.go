@@ -1,14 +1,23 @@
-package timelines
+package relationships
 
 import (
 	"encoding/json"
 	"net/http"
 	"strconv"
 	"yatter-backend-go/app/domain/object"
+
+	"github.com/go-chi/chi/v5"
 )
 
-func (h *handler) public(w http.ResponseWriter, r *http.Request) {
+func (h *handler) GetFollowers(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
+	username := chi.URLParam(r, "username")
+
+	targetAccount, err := h.ar.FindByUsername(ctx, username)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	// Query parameters from the request
 	maxIDParam := r.URL.Query().Get("max_id")
@@ -16,7 +25,6 @@ func (h *handler) public(w http.ResponseWriter, r *http.Request) {
 	limitParam := r.URL.Query().Get("limit")
 
 	// Convert query parameters to int64
-	var err error
 	var maxID int64 = object.DefaultMaxID
 	if maxIDParam != "" {
 		maxID, err = strconv.ParseInt(maxIDParam, 10, 64)
@@ -54,14 +62,14 @@ func (h *handler) public(w http.ResponseWriter, r *http.Request) {
 		Limit:   &limit,
 	}
 
-	statuses, err := h.tr.GetPublicTimeline(ctx, timeline)
+	accounts, err := h.rr.GetFollowers(ctx, targetAccount.ID, timeline)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(statuses); err != nil {
+	if err := json.NewEncoder(w).Encode(accounts); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
