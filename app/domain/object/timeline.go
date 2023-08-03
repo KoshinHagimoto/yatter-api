@@ -1,8 +1,10 @@
 package object
 
 const (
-	DefaultLimit = 40
-	MaxLimit     = 80
+	DefaultMaxID   = 100
+	DefaultSinceID = 1
+	DefaultLimit   = 40
+	MaxLimit       = 80
 )
 
 type Timeline struct {

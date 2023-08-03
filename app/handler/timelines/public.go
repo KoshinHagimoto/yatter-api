@@ -16,16 +16,25 @@ func (h *handler) public(w http.ResponseWriter, r *http.Request) {
 	limitParam := r.URL.Query().Get("limit")
 
 	// Convert query parameters to int64
-	maxID, err := strconv.ParseInt(maxIDParam, 10, 64)
-	if err != nil {
-		http.Error(w, "Invalid max_id parameter", http.StatusBadRequest)
-		return
+	var err error
+	var maxID int64 = object.DefaultMaxID
+	if maxIDParam != "" {
+		maxID, err = strconv.ParseInt(maxIDParam, 10, 64)
+		if err != nil {
+			http.Error(w, "Invalid max_id parameter", http.StatusBadRequest)
+			return
+		}
 	}
-	sinceID, err := strconv.ParseInt(sinceIDParam, 10, 64)
-	if err != nil {
-		http.Error(w, "Invalid since_id parameter", http.StatusBadRequest)
-		return
+
+	var sinceID int64 = object.DefaultSinceID
+	if sinceIDParam != "" {
+		sinceID, err = strconv.ParseInt(sinceIDParam, 10, 64)
+		if err != nil {
+			http.Error(w, "Invalid since_id parameter", http.StatusBadRequest)
+			return
+		}
 	}
+
 	var limit int64 = object.DefaultLimit
 	if limitParam != "" {
 		limit, err = strconv.ParseInt(limitParam, 10, 64)
