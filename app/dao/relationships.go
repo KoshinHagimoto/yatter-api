@@ -29,6 +29,15 @@ func (r *relationship) SaveRelationship(ctx context.Context, relationship *objec
 	return nil
 }
 
+func (r *relationship) DeleteRelationship(ctx context.Context, followerID, followingID int64) error {
+	_, err := r.db.ExecContext(ctx, "delete from relationship where follower_id = ? and following_id = ?", followerID, followingID)
+	if err != nil {
+		return fmt.Errorf("failed to delete relationship from db: %w", err)
+	}
+
+	return nil
+}
+
 func (r *relationship) IsFollowing(ctx context.Context, followerID, followingID int64) (bool, error) {
 	var count int
 	err := r.db.QueryRowContext(ctx, "select count(*) from relationship where follower_id = ? and following_id = ?", followerID, followingID).Scan(&count)
