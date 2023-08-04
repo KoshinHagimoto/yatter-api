@@ -3,9 +3,8 @@ package timelines
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
-	"yatter-backend-go/app/domain/object"
 	"yatter-backend-go/app/handler/auth"
+	"yatter-backend-go/app/utils"
 )
 
 func (h *handler) home(w http.ResponseWriter, r *http.Request) {
@@ -17,48 +16,11 @@ func (h *handler) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Query parameters from the request
-	maxIDParam := r.URL.Query().Get("max_id")
-	sinceIDParam := r.URL.Query().Get("since_id")
-	limitParam := r.URL.Query().Get("limit")
-
-	// Convert query parameters to int64
-	var err error
-	var maxID int64 = object.DefaultMaxID
-	if maxIDParam != "" {
-		maxID, err = strconv.ParseInt(maxIDParam, 10, 64)
-		if err != nil {
-			http.Error(w, "Invalid max_id parameter", http.StatusBadRequest)
-			return
-		}
-	}
-
-	var sinceID int64 = object.DefaultSinceID
-	if sinceIDParam != "" {
-		sinceID, err = strconv.ParseInt(sinceIDParam, 10, 64)
-		if err != nil {
-			http.Error(w, "Invalid since_id parameter", http.StatusBadRequest)
-			return
-		}
-	}
-
-	var limit int64 = object.DefaultLimit
-	if limitParam != "" {
-		limit, err = strconv.ParseInt(limitParam, 10, 64)
-		if err != nil {
-			http.Error(w, "Invalid limit parameter", http.StatusBadRequest)
-			return
-		}
-	}
-
-	if limit > object.MaxLimit {
-		limit = object.MaxLimit
-	}
-
-	timeline := &object.Timeline{
-		MaxID:   &maxID,
-		SinceID: &sinceID,
-		Limit:   &limit,
+	// クエリパラメータを取得
+	timeline, err := utils.GetTimelineParams(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
 	}
 
 	statuses, err := h.tr.GetHomeTimeline(ctx, account.ID, timeline)
