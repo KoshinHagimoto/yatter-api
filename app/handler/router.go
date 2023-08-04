@@ -33,7 +33,7 @@ func NewRouter(ar repository.Account, sr repository.Status, tr repository.Timeli
 
 	r.Mount("/v1/accounts", accounts.NewRouter(ar, rr))
 	r.Mount("/v1/statuses", statuses.NewRouter(ar, sr, rr))
-	r.Mount("/v1/timelines", timelines.NewRouter(tr, rr))
+	r.Mount("/v1/timelines", timelines.NewRouter(ar, tr, rr))
 	r.Mount("/v1/health", health.NewRouter())
 
 	return r
