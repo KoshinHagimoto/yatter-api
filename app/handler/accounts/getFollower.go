@@ -32,12 +32,7 @@ func (h *handler) GetFollowers(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, account := range accounts {
-		account.FollowerCount, err = h.rr.GetFollowerCount(ctx, account.ID)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		account.FollowingCount, err = h.rr.GetFollowingCount(ctx, account.ID)
+		err = utils.UpdateFollowCounts(ctx, h.rr, account)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

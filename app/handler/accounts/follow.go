@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"yatter-backend-go/app/domain/object"
 	"yatter-backend-go/app/handler/auth"
+	"yatter-backend-go/app/utils"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -43,18 +44,14 @@ func (h *handler) FollowAccount(w http.ResponseWriter, r *http.Request) {
 		FollowerID:  account.ID,
 		FollowingID: targetAccount.ID,
 	}
+
 	err = h.rr.SaveRelationship(ctx, relationship)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	isFollowing, err := h.rr.IsFollowing(ctx, account.ID, targetAccount.ID)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	isFollowedBy, err := h.rr.IsFollowing(ctx, targetAccount.ID, account.ID)
+	isFollowing, isFollowedBy, err := utils.FetchFollowRelationship(ctx, h.rr, account.ID, targetAccount.ID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

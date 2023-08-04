@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"yatter-backend-go/app/handler/auth"
+	"yatter-backend-go/app/utils"
 )
 
 type UpdateAccountRequest struct {
@@ -84,12 +85,7 @@ func (h *handler) Update(w http.ResponseWriter, r *http.Request) {
 		account.Header = req.Header
 	}
 
-	account.FollowerCount, err = h.rr.GetFollowerCount(ctx, account.ID)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	account.FollowingCount, err = h.rr.GetFollowingCount(ctx, account.ID)
+	err = utils.UpdateFollowCounts(ctx, h.rr, account)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

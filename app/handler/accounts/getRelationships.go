@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 	"yatter-backend-go/app/handler/auth"
+	"yatter-backend-go/app/utils"
 )
 
 func (h *handler) GetRelationships(w http.ResponseWriter, r *http.Request) {
@@ -22,25 +23,20 @@ func (h *handler) GetRelationships(w http.ResponseWriter, r *http.Request) {
 	var relationships []FollowResponse
 
 	for _, username := range splitUsernames {
-		targetUser, err := h.ar.FindByUsername(ctx, username)
+		targetAccount, err := h.ar.FindByUsername(ctx, username)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		isFollowing, err := h.rr.IsFollowing(ctx, account.ID, targetUser.ID)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		isFollowedBy, err := h.rr.IsFollowing(ctx, targetUser.ID, account.ID)
+		isFollowing, isFollowedBy, err := utils.FetchFollowRelationship(ctx, h.rr, account.ID, targetAccount.ID)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		relationships = append(relationships, FollowResponse{
-			ID:         targetUser.ID,
+			ID:         targetAccount.ID,
 			Following:  isFollowing,
 			FollowedBy: isFollowedBy,
 		})
