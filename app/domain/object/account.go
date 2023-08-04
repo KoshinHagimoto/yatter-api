@@ -35,6 +35,10 @@ type Account struct {
 
 	// The time the account was created
 	CreateAt time.Time `json:"create_at,omitempty" db:"create_at"`
+
+	FollowerCount int64 `json:"followers_count"`
+
+	FollowingCount int64 `json:"following_count"`
 }
 
 // Check if given password is match to account's password

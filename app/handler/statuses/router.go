@@ -10,9 +10,10 @@ import (
 
 type handler struct {
 	sr repository.Status
+	rr repository.Relationship
 }
 
-func NewRouter(ar repository.Account, sr repository.Status) http.Handler {
+func NewRouter(ar repository.Account, sr repository.Status, rr repository.Relationship) http.Handler {
 	r := chi.NewRouter()
 
 	// 全体に適用するミドルウェアを設定（認証は含まない）
@@ -20,14 +21,14 @@ func NewRouter(ar repository.Account, sr repository.Status) http.Handler {
 	// 認証が必要なルートグループ
 	r.Group(func(r chi.Router) {
 		r.Use(auth.Middleware(ar)) // 認証ミドルウェアを適用
-		h := &handler{sr}
+		h := &handler{sr, rr}
 		r.Post("/", h.Create)       // POST /: 認証が必要
 		r.Delete("/{id}", h.Delete) // DELETE /{id}: 認証が必要
 	})
 
 	// 認証が不要なルートグループ
 	r.Group(func(r chi.Router) {
-		h := &handler{sr}
+		h := &handler{sr, rr}
 		r.Get("/{id}", h.FindStatus) // GET /{id}: 認証が不要
 	})
 

@@ -1,4 +1,4 @@
-package relationships
+package accounts
 
 import (
 	"encoding/json"
@@ -30,6 +30,12 @@ func (h *handler) FollowAccount(w http.ResponseWriter, r *http.Request) {
 	targetAccount, err := h.ar.FindByUsername(ctx, username)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	//自分自身をフォローしようとしていないことを確認
+	if account.ID == targetAccount.ID {
+		http.Error(w, "You can't follow yourself", http.StatusForbidden)
 		return
 	}
 

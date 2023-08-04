@@ -1,4 +1,4 @@
-package relationships
+package accounts
 
 import (
 	"encoding/json"
@@ -37,6 +37,19 @@ func (h *handler) GetFollowing(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
+	}
+
+	for _, account := range accounts {
+		account.FollowerCount, err = h.rr.GetFollowerCount(ctx, account.ID)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		account.FollowingCount, err = h.rr.GetFollowingCount(ctx, account.ID)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
 
 	w.Header().Set("Content-Type", "application/json")

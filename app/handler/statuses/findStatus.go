@@ -27,6 +27,17 @@ func (h *handler) FindStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	status.Account.FollowerCount, err = h.rr.GetFollowerCount(ctx, status.Account.ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	status.Account.FollowingCount, err = h.rr.GetFollowingCount(ctx, status.Account.ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	if status == nil {
 		w.WriteHeader(http.StatusNotFound)

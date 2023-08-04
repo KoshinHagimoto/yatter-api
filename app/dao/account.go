@@ -23,14 +23,19 @@ func NewAccount(db *sqlx.DB) repository.Account {
 	return &account{db: db}
 }
 
-func (a *account) SaveAccount(ctx context.Context, account *object.Account) error {
-	_, err := a.db.ExecContext(ctx, "insert into account (username, password_hash) values (?, ?)",
+func (a *account) SaveAccount(ctx context.Context, account *object.Account) (accountID int64, err error) {
+	result, err := a.db.ExecContext(ctx, "insert into account (username, password_hash) values (?, ?)",
 		account.Username, account.PasswordHash)
 	if err != nil {
-		return fmt.Errorf("failed to insert account into db: %w", err)
+		return 0, fmt.Errorf("failed to insert account into db: %w", err)
 	}
 
-	return nil
+	accountID, err = result.LastInsertId()
+	if err != nil {
+		return 0, fmt.Errorf("failed to get last inserted ID: %w", err)
+	}
+
+	return accountID, nil
 }
 
 func (a *account) UpdateAccount(ctx context.Context, account *object.Account) error {
