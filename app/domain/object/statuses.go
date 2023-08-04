@@ -12,4 +12,6 @@ type Status struct {
 	Url *string `json:"url,omitempty"`
 
 	CreateAt time.Time `json:"create_at,omitempty" db:"create_at"`
+
+	Account *Account `json:"account,omitempty" db:"account"`
 }

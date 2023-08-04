@@ -87,3 +87,23 @@ func (r *relationship) GetFollowers(ctx context.Context, followingID int64, time
 	}
 	return accounts, nil
 }
+
+func (r *relationship) GetFollowerCount(ctx context.Context, accountID int64) (int64, error) {
+	var count int64
+	err := r.db.QueryRowContext(ctx, "select count(*) from relationship where following_id = ?", accountID).Scan(&count)
+	if err != nil {
+		return 0, fmt.Errorf("failed to query relationship in db: %w", err)
+	}
+
+	return count, nil
+}
+
+func (r *relationship) GetFollowingCount(ctx context.Context, accountID int64) (int64, error) {
+	var count int64
+	err := r.db.QueryRowContext(ctx, "select count(*) from relationship where follower_id = ?", accountID).Scan(&count)
+	if err != nil {
+		return 0, fmt.Errorf("failed to query relationship in db: %w", err)
+	}
+
+	return count, nil
+}

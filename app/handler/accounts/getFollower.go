@@ -1,4 +1,4 @@
-package relationships
+package accounts
 
 import (
 	"encoding/json"
