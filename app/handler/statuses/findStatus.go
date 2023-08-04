@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"yatter-backend-go/app/utils"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -27,12 +28,8 @@ func (h *handler) FindStatus(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	status.Account.FollowerCount, err = h.rr.GetFollowerCount(ctx, status.Account.ID)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	status.Account.FollowingCount, err = h.rr.GetFollowingCount(ctx, status.Account.ID)
+	//フォロー数とフォロワー数を更新
+	err = utils.UpdateFollowCounts(ctx, h.rr, status.Account)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

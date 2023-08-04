@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"yatter-backend-go/app/domain/object"
 	"yatter-backend-go/app/handler/auth"
+	"yatter-backend-go/app/utils"
 )
 
 type AddRequest struct {
@@ -18,13 +19,10 @@ func (h *handler) Create(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
+
 	var err error
-	account.FollowerCount, err = h.rr.GetFollowerCount(ctx, account.ID)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	account.FollowingCount, err = h.rr.GetFollowingCount(ctx, account.ID)
+	//フォロー数とフォロワー数を更新
+	err = utils.UpdateFollowCounts(ctx, h.rr, account)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

@@ -3,6 +3,7 @@ package accounts
 import (
 	"encoding/json"
 	"net/http"
+	"yatter-backend-go/app/utils"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -21,12 +22,8 @@ func (h *handler) FindAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	account.FollowerCount, err = h.rr.GetFollowerCount(ctx, account.ID)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	account.FollowingCount, err = h.rr.GetFollowingCount(ctx, account.ID)
+	//フォロー数とフォロワー数を更新
+	err = utils.UpdateFollowCounts(ctx, h.rr, account)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

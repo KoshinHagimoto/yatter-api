@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"yatter-backend-go/app/domain/object"
+	"yatter-backend-go/app/utils"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -33,19 +34,16 @@ func (h *handler) GetFollowing(w http.ResponseWriter, r *http.Request) {
 		limit = object.MaxLimit
 	}
 
+	//フォローしているアカウントを取得
 	accounts, err := h.rr.GetFollowing(ctx, targetAccount.ID, limit)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	//フォロー数とフォロワー数を更新
 	for _, account := range accounts {
-		account.FollowerCount, err = h.rr.GetFollowerCount(ctx, account.ID)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		account.FollowingCount, err = h.rr.GetFollowingCount(ctx, account.ID)
+		err = utils.UpdateFollowCounts(ctx, h.rr, account)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return

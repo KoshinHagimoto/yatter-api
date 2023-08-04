@@ -36,32 +36,33 @@ func (t *timeline) GetPublicTimeline(ctx context.Context, timeline *object.Timel
 			account AS a
 		ON
 			s.account_id = a.id
+		WHERE 
+			(:max_id = -1 or s.id <= :max_id)
+		AND 
+			(:since_id = -1 or s.id >= :since_id)
+		ORDER BY s.id DESC
+		LIMIT :limit
 	`
 
-	args := []interface{}{}
+	property := map[string]interface{}{
+		"max_id":   -1,
+		"since_id": -1,
+		"limit":    object.MaxLimit,
+	}
 
 	if timeline.MaxID != nil {
-		query += " WHERE s.id <= ?"
-		args = append(args, *timeline.MaxID)
+		property["max_id"] = *timeline.MaxID
 	}
 
 	if timeline.SinceID != nil {
-		if len(args) > 0 {
-			query += " AND s.id >= ?"
-		} else {
-			query += " WHERE s.id >= ?"
-		}
-		args = append(args, *timeline.SinceID)
+		property["since_id"] = *timeline.SinceID
 	}
-
-	query += " ORDER BY s.id DESC"
 
 	if timeline.Limit != nil {
-		query += " LIMIT ?"
-		args = append(args, *timeline.Limit)
+		property["limit"] = *timeline.Limit
 	}
 
-	rows, err := t.db.QueryContext(ctx, query, args...)
+	rows, err := t.db.NamedQueryContext(ctx, query, property)
 	if err != nil {
 		return nil, err
 	}
@@ -95,55 +96,60 @@ func (t *timeline) GetPublicTimeline(ctx context.Context, timeline *object.Timel
 
 func (t *timeline) GetHomeTimeline(ctx context.Context, accountID int64, timeline *object.Timeline) ([]*object.Status, error) {
 	query := `
-			SELECT 
-				s.id AS status_id,
-				s.content,
-				s.create_at AS status_created_at,
-				a.id AS account_id,
-				a.username,
-				a.display_name,
-				a.create_at AS account_created_at,
-				a.note,
-				a.avatar,
-				a.header
-			FROM 
-				status AS s
-			JOIN
-				account AS a
-			ON
-				s.account_id = a.id
-			WHERE
-				a.ID IN (
-					SELECT
-						following_id
-					FROM 
-						relationship
-					WHERE
-						follower_id = ?
-				)
-			`
+		SELECT 
+			s.id AS status_id,
+			s.content,
+			s.create_at AS status_created_at,
+			a.id AS account_id,
+			a.username,
+			a.display_name,
+			a.create_at AS account_created_at,
+			a.note,
+			a.avatar,
+			a.header
+		FROM 
+			status AS s
+		JOIN
+			account AS a
+		ON
+			s.account_id = a.id
+		WHERE
+			a.ID IN (
+				SELECT
+					following_id
+				FROM 
+					relationship
+				WHERE
+					follower_id = :account_id
+			)
+		AND
+			(:max_id = -1 or s.id <= :max_id)
+		AND 
+			(:since_id = -1 or s.id >= :since_id)
+		ORDER BY s.id DESC
+		LIMIT :limit
+	`
 
-	args := []interface{}{}
-	args = append(args, accountID)
+	property := map[string]interface{}{
+		"account_id": accountID,
+		"max_id":     -1,
+		"since_id":   -1,
+		"limit":      object.MaxLimit,
+	}
 
 	if timeline.MaxID != nil {
-		query += " AND s.id <= ?"
-		args = append(args, *timeline.MaxID)
+		property["max_id"] = *timeline.MaxID
 	}
 
 	if timeline.SinceID != nil {
-		query += " AND s.id >= ?"
-		args = append(args, *timeline.SinceID)
+		property["since_id"] = *timeline.SinceID
 	}
-
-	query += " ORDER BY s.id DESC"
 
 	if timeline.Limit != nil {
-		query += " LIMIT ?"
-		args = append(args, *timeline.Limit)
+		property["limit"] = *timeline.Limit
 	}
 
-	rows, err := t.db.QueryContext(ctx, query, args...)
+	rows, err := t.db.NamedQueryContext(ctx, query, property)
 	if err != nil {
 		return nil, err
 	}
