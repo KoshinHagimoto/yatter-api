@@ -127,16 +127,12 @@ func (t *timeline) GetHomeTimeline(ctx context.Context, accountID int64, timelin
 	args = append(args, accountID)
 
 	if timeline.MaxID != nil {
-		query += " WHERE s.id <= ?"
+		query += " AND s.id <= ?"
 		args = append(args, *timeline.MaxID)
 	}
 
 	if timeline.SinceID != nil {
-		if len(args) > 0 {
-			query += " AND s.id >= ?"
-		} else {
-			query += " WHERE s.id >= ?"
-		}
+		query += " AND s.id >= ?"
 		args = append(args, *timeline.SinceID)
 	}
 
