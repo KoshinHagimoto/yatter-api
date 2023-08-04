@@ -25,12 +25,14 @@ func (h *handler) GetFollowers(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//フォロワーを取得
 	accounts, err := h.rr.GetFollowers(ctx, targetAccount.ID, timeline)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	//フォロー数とフォロワー数を更新
 	for _, account := range accounts {
 		err = utils.UpdateFollowCounts(ctx, h.rr, account)
 		if err != nil {

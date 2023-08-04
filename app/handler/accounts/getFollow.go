@@ -34,12 +34,14 @@ func (h *handler) GetFollowing(w http.ResponseWriter, r *http.Request) {
 		limit = object.MaxLimit
 	}
 
+	//フォローしているアカウントを取得
 	accounts, err := h.rr.GetFollowing(ctx, targetAccount.ID, limit)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	//フォロー数とフォロワー数を更新
 	for _, account := range accounts {
 		err = utils.UpdateFollowCounts(ctx, h.rr, account)
 		if err != nil {
