@@ -33,6 +33,12 @@ func (h *handler) FollowAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	//自分自身をフォローしようとしていないことを確認
+	if account.ID == targetAccount.ID {
+		http.Error(w, "You can't follow yourself", http.StatusForbidden)
+		return
+	}
+
 	relationship := &object.Relationship{
 		FollowerID:  account.ID,
 		FollowingID: targetAccount.ID,
