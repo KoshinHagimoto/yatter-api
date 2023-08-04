@@ -18,6 +18,17 @@ func (h *handler) Create(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
+	var err error
+	account.FollowerCount, err = h.rr.GetFollowerCount(ctx, account.ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	account.FollowingCount, err = h.rr.GetFollowingCount(ctx, account.ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	var req AddRequest
 
@@ -29,11 +40,15 @@ func (h *handler) Create(w http.ResponseWriter, r *http.Request) {
 	status := new(object.Status)
 	status.Content = req.Content
 	status.AccountID = account.ID
+	status.Account = account
 
-	if err := h.sr.SaveStatus(ctx, status); err != nil {
+	ID, err := h.sr.SaveStatus(ctx, status)
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	status.ID = ID
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(status); err != nil {

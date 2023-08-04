@@ -34,10 +34,13 @@ func (h *handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	//アカウントをDBに保存
 	//エラーハンドリングはCreateメソッド内で行う
-	if err := h.ar.SaveAccount(ctx, account); err != nil {
+	ID, err := h.ar.SaveAccount(ctx, account)
+	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	account.ID = ID
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(account); err != nil {

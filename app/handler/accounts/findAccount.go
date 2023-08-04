@@ -21,12 +21,18 @@ func (h *handler) FindAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-
-	if account == nil {
-		w.WriteHeader(http.StatusNotFound)
+	account.FollowerCount, err = h.rr.GetFollowerCount(ctx, account.ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	account.FollowingCount, err = h.rr.GetFollowingCount(ctx, account.ID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 
 	if err := json.NewEncoder(w).Encode(account); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

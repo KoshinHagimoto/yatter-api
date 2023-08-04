@@ -9,12 +9,13 @@ import (
 
 type handler struct {
 	tr repository.Timeline
+	rr repository.Relationship
 }
 
-func NewRouter(tr repository.Timeline) http.Handler {
+func NewRouter(tr repository.Timeline, rr repository.Relationship) http.Handler {
 	r := chi.NewRouter()
 
-	h := &handler{tr}
+	h := &handler{tr, rr}
 	r.Get("/public", h.public)
 	return r
 }

@@ -39,6 +39,19 @@ func (h *handler) GetFollowing(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	for _, account := range accounts {
+		account.FollowerCount, err = h.rr.GetFollowerCount(ctx, account.ID)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		account.FollowingCount, err = h.rr.GetFollowingCount(ctx, account.ID)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+	}
+
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(accounts); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

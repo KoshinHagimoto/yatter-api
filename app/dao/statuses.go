@@ -23,14 +23,19 @@ func NewStatus(db *sqlx.DB) repository.Status {
 	return &status{db: db}
 }
 
-func (s *status) SaveStatus(ctx context.Context, status *object.Status) error {
-	_, err := s.db.ExecContext(ctx, "insert into status (account_id, content) values (?, ?)",
-		status.AccountID, status.Content)
+func (s *status) SaveStatus(ctx context.Context, status *object.Status) (statusID int64, err error) {
+	result, err := s.db.ExecContext(ctx, "insert into status (account_id, content) values (?, ?)",
+		status.Account.ID, status.Content)
 	if err != nil {
-		return fmt.Errorf("failed to insert status into db: %w", err)
+		return 0, fmt.Errorf("failed to insert status into db: %w", err)
 	}
 
-	return nil
+	statusID, err = result.LastInsertId()
+	if err != nil {
+		return 0, fmt.Errorf("failed to get last inserted ID: %w", err)
+	}
+
+	return statusID, nil
 }
 
 func (s *status) DeleteStatus(ctx context.Context, statusID int64) error {

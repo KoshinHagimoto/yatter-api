@@ -32,8 +32,8 @@ func NewRouter(ar repository.Account, sr repository.Status, tr repository.Timeli
 	r.Use(middleware.Timeout(60 * time.Second)) //リクエストのタイムアウトを設定する
 
 	r.Mount("/v1/accounts", accounts.NewRouter(ar, rr))
-	r.Mount("/v1/statuses", statuses.NewRouter(ar, sr))
-	r.Mount("/v1/timelines", timelines.NewRouter(tr))
+	r.Mount("/v1/statuses", statuses.NewRouter(ar, sr, rr))
+	r.Mount("/v1/timelines", timelines.NewRouter(tr, rr))
 	r.Mount("/v1/health", health.NewRouter())
 
 	return r
