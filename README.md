@@ -1,6 +1,26 @@
 # yatter-backend-go
 
 ## Table of Contents
+* [Project Overview](#project-overview)
+    * [Introduction](#introduction)
+    * [API overview](#api-overview)
+* [Developed Features](#developed-features)
+    * [Account](#account)
+        * [POST /accouts](#post-accounts)
+        * [POST /accounts/update_credentials](#update_credentials)
+        * [GET /accounts/{username}](#get_accounts)
+        * [POST /accounts/{username}/follow](#follow)
+        * [GET /accounts/{username}/following](#following)
+        * [GET /accounts/{username}/followers](#followers)
+        * [POST /accounts/{username}/unfollow](#unfollow)
+        * [GET /accounts/relationships](#relationships)
+    * [Status](#status)
+        * [POST /statuses](#post_statuse)
+        * [GET /statuses/{id}](#get_statuses)
+        * [DELETE /statuses/{id}](#delete_statuses) 
+    * [Timeline](#timeline)
+        * [GET /timelines/home](#home_timelines)
+        * [GET /timelines/public](#public_timelines)
 * [Development Environment](#development-environment)
     * [Requirements](#requirements)
 	* [Start](#start)
@@ -15,6 +35,142 @@
     * [Library](#library)
     * [Utilities](#utilities)
 
+## Project Overview
+
+### Introduction
+
+2023-DMM-Go-internで作成したWeb API. <br> 3日間で各種エンドポイントの実装を行った.
+
+### API overview
+
+Yatter(like Twitter)のWeb APIを実装する. <br> ユーザーのアカウント作成・取得・変更やユーザーが新たな投稿（status）を出来るようにエンドポイントを実装する.
+
+## Developed Features
+
+以下のエンドポイントを実装.
+
+### Account
+
+#### POST /accouts
+新たなユーザーアカウントを作成するエンドポイント.
+```
+// request body
+{
+  "username": "john",
+  "password": "P@ssw0rd"
+}
+```
+```
+// response body
+{
+  "id": 6,
+  "username": "john",
+  "create_at": "0001-01-01T00:00:00Z",
+  "followers_count": 0,
+  "following_count": 0
+}
+```
+
+#### POST /accounts/update_credentials
+ユーザー情報を変更・追加するエンドポイント.<br> mulitipart/form-dataでアバターやヘッダー画像を送信可能.
+```
+//response body
+{
+  "id": 0,
+  "username": "john",
+  "display_name": "ジョン",
+  "create_at": "2023-08-04T11:30:01.408Z",
+  "followers_count": 52,
+  "following_count": 128,
+  "note": "string",
+  "avatar": "string",
+  "header": "string"
+}
+```
+       
+#### GET /accounts/{username}
+usernameで指定されたアカウントを取得. レスポンスは上記と同様.
+
+#### POST /accounts/{username}/follow
+認証されたユーザーがusernameで指定されたアカウントをフォローするエンドポイント.
+```
+//response body
+{
+  "id": 6,
+  "following": true,
+  "followed_by": false
+}
+```
+
+#### GET /accounts/{username}/following
+usernameで指定されたユーザーがフォローしているアカウントを列挙.
+```
+//response body
+[
+  {
+    "id": 1,
+    "username": "yatter",
+    "create_at": "2023-08-03T14:41:25+09:00",
+    "followers_count": 2,
+    "following_count": 0
+  },
+  {
+    "id": 3,
+    "username": "yatter1",
+    "create_at": "2023-08-03T15:07:40+09:00",
+    "followers_count": 1,
+    "following_count": 1
+  },
+]
+```
+
+#### GET /accounts/{username}/followers
+usernameで指定されたユーザーのフォロワーを取得.
+
+#### POST /accounts/{username}/unfollow
+usernameで指定されたユーザーのフォローを外すエンドポイント.
+
+#### GET /accounts/relationships
+認証されたユーザーとクエリで指定されたユーザー(複数可)との関係を返すエンドポイント.
+
+### Status
+#### POST /statuses
+認証されたユーザーがstatusを投稿できるエンドポイント.
+```
+// requeest body
+{
+   "status": "content"
+}
+```
+```
+// response body
+{
+  "id": 17,
+  "content": "content",
+  "create_at": "0001-01-01T00:00:00Z",
+  "account": {
+    "id": 1,
+    "username": "john",
+    "create_at": "2023-08-04T16:51:37+09:00",
+    "followers_count": 2,
+    "following_count": 1
+  }
+}
+```
+
+#### GET /statuses/{id}
+idで指定されたstatusの投稿の情報を返す.
+
+#### DELETE /statuses/{id}
+idで指定されたstatusを削除.
+
+### Timeline
+
+#### GET /timelines/home
+認証されたユーザーがフォローしているユーザーのstatus投稿を一覧で取得. クエリパラメータでmax_id, since_id, limitを指定できる.
+
+#### GET /timelines/public
+status投稿の一覧を取得. クエリパラメータでmax_id, since_id, limitを指定できる.
 
 ## Development Environment
 開発環境をdocker-composeで構築しています。
