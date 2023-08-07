@@ -14,8 +14,9 @@ type AddRequest struct {
 }
 
 // Handle request for `POST /v1/accounts`
+// jsonを受け取り、アカウントを作成する
 func (h *handler) Create(w http.ResponseWriter, r *http.Request) {
-	//ctx := r.Context()
+	ctx := r.Context()
 
 	var req AddRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -25,12 +26,21 @@ func (h *handler) Create(w http.ResponseWriter, r *http.Request) {
 
 	account := new(object.Account)
 	account.Username = req.Username
+	//パスワードはハッシュ化して保存する
 	if err := account.SetPassword(req.Password); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	panic("Must Implement Account Registration")
+	//アカウントをDBに保存
+	//エラーハンドリングはCreateメソッド内で行う
+	ID, err := h.ar.SaveAccount(ctx, account)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	account.ID = ID
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(account); err != nil {

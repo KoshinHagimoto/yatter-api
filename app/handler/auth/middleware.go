@@ -12,6 +12,7 @@ import (
 var contextKey = new(struct{})
 
 // Auth by header
+// ユーザー名をヘッダーから取り出して、コンテキストに保存する.
 func Middleware(ar repository.Account) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -46,6 +47,7 @@ func Middleware(ar repository.Account) func(http.Handler) http.Handler {
 }
 
 // Read Account data from authorized request
+// コンテキストに保存したアカウントを取り出す
 func AccountOf(r *http.Request) *object.Account {
 	if cv := r.Context().Value(contextKey); cv == nil {
 		return nil
